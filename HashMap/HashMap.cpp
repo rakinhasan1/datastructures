@@ -5,7 +5,7 @@
 #include <string>
 #include<memory>
 template<typename K, typename V>
-class HashEntry{
+class HashEntry{		//hash entry classs
 	public:
 	K key;
 	V value;
@@ -17,38 +17,38 @@ class HashEntry{
 };
 
 template<typename K, typename V>
-class HashMap{
+class HashMap{		//hash map class
 	
-	HashEntry<K,V>** arr;
+	HashEntry<K,V>** arr;	//have an array of pointers to hash entries
 	int capacity;
 	int size;
-	HashEntry<K,V>* dummy;
+	HashEntry<K,V>* dummy;  //dummy pointer, use this when an entry needs to be deleted
 	
-	void resize(){
+	void resize(){		//resize when capacity is reached
 		//std::cout<<"resize"<<std::endl;
 		capacity*=2;
 		HashEntry<K,V> ** temp= new HashEntry<K,V>* [capacity];
 		for (int i=0;i<capacity;i++)
 			temp[i]=nullptr;
-		for(int i=0;i<capacity/2;i++){
-			if(arr[i]!=nullptr && arr[i]!=dummy){
-				int hashindex= hashCode(arr[i]->key);
-				while(temp[hashindex]!=nullptr){
+		for(int i=0;i<capacity/2;i++){	//go through the old hash table
+			if(arr[i]!=nullptr && arr[i]!=dummy){	//checks if it is a valid entry
+				int hashindex= hashCode(arr[i]->key);  //recalculate the hash, then put it back into the table
+				while(temp[hashindex]!=nullptr){	//from the hash, find the next empty spot in the table
 					hashindex++;
 					hashindex%capacity;
 				}
-				temp[hashindex]=arr[i];
+				temp[hashindex]=arr[i];		
 			}
 			
 		}
 		
-		delete [] arr;
-		arr=temp;
+		delete [] arr;		//delete the old pointer
+		arr=temp;		//reassign the value of arr
 	}
 	
 	public:
 	HashMap(){
-		capacity=5;
+		capacity=5;		
 		size=0;
 		dummy=new HashEntry<K,V>(NULL,NULL);
 		arr=new HashEntry<K,V>*[capacity];
@@ -58,37 +58,37 @@ class HashMap{
 	}
 	virtual ~HashMap();
 	
-	int hashCode(K k){
+	int hashCode(K k){		//calculate hash code
 		return std::hash<K>()(k)%capacity;
 	}
 	
 	void insert(K key,V value){
-		if(size==capacity)
+		if(size==capacity)		//resize when size goes up to the capacity
 			resize();
 		HashEntry<K,V>* temp=new HashEntry<K,V>(key,value);
-		int hashindex=hashCode(key);
-		while(arr[hashindex]!=nullptr && arr[hashindex]!=dummy && arr[hashindex]->key!=key){
+		int hashindex=hashCode(key);		//calculate hashcode
+		while(arr[hashindex]!=nullptr && arr[hashindex]!=dummy && arr[hashindex]->key!=key){ //find next nonempty entry in the table or stop if the key is already in the table
 			hashindex++;
 			hashindex%=capacity;
 		}
 		
-		if(arr[hashindex]==nullptr|| arr[hashindex]==dummy)
+		if(arr[hashindex]==nullptr|| arr[hashindex]==dummy)		//increment size if added to a empty spot
 			size++;
 		else{
-			delete arr[hashindex];
+			delete arr[hashindex];			
 			arr[hashindex]=nullptr;
 		}
 		arr[hashindex]=temp;
 	}
 	
-	V get(K key){
+	V get(K key){		//get method given a key
 		//std::cout<<size<<std::endl;
-		int hashindex=hashCode(key);
-		int counter=0;
+		int hashindex=hashCode(key); //calculate the hashcode
+		int counter=0; //this variable is to make sure the loop stops when the whole array has been searched
 		while(arr[hashindex] != nullptr){
-			if (counter++>capacity)
+			if (counter++>capacity)	//increment counter each time
 				return NULL;
-			if(arr[hashindex]!=dummy && arr[hashindex]->key==key)
+			if(arr[hashindex]!=dummy && arr[hashindex]->key==key) //make sure the key is at the index
 					return arr[hashindex]->value;
 			hashindex++;
 			hashindex%=capacity;
@@ -98,13 +98,13 @@ class HashMap{
 	}
 	
 	
-	V deleteNode (K key){
-		int hashindex=hashCode(key);
+	V deleteNode (K key){		//this will put dummy node in the spot that is to be deleted, it is a lazy deletion
+		int hashindex=hashCode(key); //first find if the key is in the hash table
 		int counter=0;
 		while(arr[hashindex] != nullptr){
 			if (counter++>capacity)
 				return NULL;
-			if(arr[hashindex]!=dummy && arr[hashindex]->key==key){
+			if(arr[hashindex]!=dummy && arr[hashindex]->key==key){ //if it is in the hash table, delete the pointer and replace it with dummy node
 				V temp=arr[hashindex]->value;
 				HashEntry<K,V>* h=arr[hashindex];
 				arr[hashindex]=dummy;
@@ -122,7 +122,7 @@ class HashMap{
 	}
 	
 	
-	void deleteEntries(){
+	void deleteEntries(){		
 		//std::cout<<"delete";
 		//delete [] arr;
 		delete dummy;
@@ -136,7 +136,7 @@ class HashMap{
 		delete [] arr;
 		
 	}
-	void display() 
+	void display() 			//method to display all key-value pairs
     { 
         for(int i=0 ; i<capacity ; i++) 
         { 
@@ -154,7 +154,7 @@ HashMap<k,v>::~HashMap(){
 	deleteEntries();
 }
 
-class Point{
+class Point{		//random custom class I made to test with the HashMap
 	public:
 		int x;
 		int y;
@@ -166,7 +166,7 @@ class Point{
 namespace std
 {
     template <>
-    struct hash<Point>
+    struct hash<Point>		//hash method for point class
     {
         size_t operator()(const Point& k) const
         {
