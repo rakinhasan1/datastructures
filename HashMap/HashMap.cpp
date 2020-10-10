@@ -1,4 +1,4 @@
-
+//Program to test linear probing hashing algorithm
 
 
 #include <iostream>
